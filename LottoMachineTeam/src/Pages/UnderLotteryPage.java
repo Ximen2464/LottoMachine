@@ -3,7 +3,11 @@ package Pages;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -12,10 +16,12 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.Timer;
 
+import database.WinningNum;
+import database.WinningNumData;
 import utility.IconData;
 
 public class UnderLotteryPage extends JDialog implements ActionListener{
-	
+	private WinningNumData winningNumData;
 	private JLabel label;
 	private ImageIcon underLotteryPage;
 	private ImageIcon bonuseIcon;
@@ -27,10 +33,16 @@ public class UnderLotteryPage extends JDialog implements ActionListener{
 	int count;
 	IconData iconData = new IconData();
 	private Timer timer;
+	private int randomNum;
+	private Set<Integer> randomNums;
+	private int bonusNum;
 	
-
-  
-    /**
+    
+    public void name() {
+		winningNumData.setWinningNum(new WinningNum(randomNums, 5));
+	}
+    
+	/**
      * Create the frame.
      */
     public UnderLotteryPage() {
@@ -61,6 +73,14 @@ public class UnderLotteryPage extends JDialog implements ActionListener{
         
         timer = new Timer(1000, this);
         timer.start();
+        randomNums = new HashSet<>();
+        while (randomNums.size() < 6) {
+        	int num = random.nextInt(45);
+        	randomNums.add(num);
+		}
+        
+        generateBonusNumber();
+        
         pack();
     }
     private void makeLabel() {
@@ -106,12 +126,12 @@ public class UnderLotteryPage extends JDialog implements ActionListener{
     }
     @Override
 	public void actionPerformed(ActionEvent e) {
-    	int randomNum = random.nextInt(45);
+    	
     	if (count < 6) {
-			selectEmptyJLabels[count].setIcon(iconData.LCIcons()[randomNum]);
+			selectEmptyJLabels[count].setIcon(iconData.LCIcons()[randomNums.toArray(new Integer[0])[count]]);
 		}
     	if (count == 6) {
-			bonuseEmptyJLabels.setIcon(iconData.LCIcons()[randomNum]);
+			bonuseEmptyJLabels.setIcon(iconData.LCIcons()[bonusNum]);
 		}
     	if (count > 6) {
 			timer.stop();
@@ -119,5 +139,9 @@ public class UnderLotteryPage extends JDialog implements ActionListener{
 		}
     	count++;
 	}
-    
+    private void generateBonusNumber() {
+        do {
+            bonusNum = random.nextInt(45);
+        } while (randomNums.contains(bonusNum));
+    }
 }
