@@ -1,8 +1,9 @@
 package Pages;
+import java.awt.Container;
 import java.awt.Dimension;
 
 import database.SelectNum;
-import database.SelectNumHashMap;
+import database.SelectNumData;
 import utility.IconData;
 import utility.Utility;
 
@@ -23,11 +24,16 @@ import javax.swing.border.EmptyBorder;
 public class SelectNumPage extends JDialog {
 
     private JPanel contentPane;
-    SelectNumHashMap selectNumHashMap = new SelectNumHashMap();
+    SelectNumData selectNumHashMap = new SelectNumData();
     private IconData iconData = new IconData();
 	private JLabel[][] numLabels;
     private Utility utility = new Utility();
 	private JLabel[] keyLabels;
+	private int isAuto;
+	public static final int AUTO = 1;
+	public static final int SEMIAUTO = 2;
+	public static final int MANUAL = 3;
+	
 	
    
     /**
@@ -48,6 +54,9 @@ public class SelectNumPage extends JDialog {
         
         numLabels = new JLabel[6][10];
         keyLabels = new JLabel[10];
+        JButton[] cancelButton = new JButton[10];
+        Map<Integer, SelectNum> map;
+        map = selectNumHashMap.getSelectNumHashMap();
         // 이미지 아이콘을 사용하는 레이블 생성
         JLabel label = new JLabel(icon); // 배경 Label
         
@@ -68,19 +77,19 @@ public class SelectNumPage extends JDialog {
        
         JButton buyButton = new JButton(buyIcon);
         buyButton.setBounds(90, 815, 251, 41); // 위치와 크기 설정
+        
+        for (int i = 0; i < cancelButton.length; i++) {
+			cancelButton[i] = new JButton(cancleBtn);
+		}
+        
+        for (int i = 0; i < cancelButton.length; i++) {
+        	cancelButton[i].setBounds(356, 119 + i * 70, 52, 36);
+		}
 
         // JLayeredPane 생성 및 설정
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(430, 890)); // JLayeredPane의 크기 설정
 
-        JButton[] cancel = new JButton[10];
-        for(int i = 0; i < 10; i++) {
-        	cancel[i] = new JButton(cancleBtn);
-        	cancel[i].setBounds(356, 119 + i * 70, 52, 36);
-        	layeredPane.add(cancel[i], new Integer(2));
-        	utility.setButtonProperties(cancel[i]);
-        }
-        
         // 레이블 및 버튼 위치 설정
         label.setBounds(0, 0, icon.getIconWidth(), icon.getIconHeight()); // 배경 위치
         
@@ -97,7 +106,15 @@ public class SelectNumPage extends JDialog {
 		}
         
         for (int i = 0; i < keyLabels.length; i++) {
+			keyLabels[i].setBounds(10, 117 + i * 70, 40, 40);
+		}
+        
+        for (int i = 0; i < keyLabels.length; i++) {
 			layeredPane.add(keyLabels[i], new Integer(2));
+		}
+        
+        for (int i = 0; i < cancelButton.length; i++) {
+        	layeredPane.add(cancelButton[i], new Integer(2));
 		}
         layeredPane.add(label, new Integer(1)); // 레이블은 뒤쪽 레이어에 추가
         layeredPane.add(backButton, new Integer(2)); // 버튼은 앞쪽 레이어에 추가
@@ -109,8 +126,22 @@ public class SelectNumPage extends JDialog {
         // 버튼숨기기
         utility.setButtonProperties(backButton);
         utility.setButtonProperties(buyButton);
+        for (int i = 0; i < cancelButton.length; i++) {
+        	utility.setButtonProperties(cancelButton[i]);
+		}
         
         // 버튼 ActionListener
+        for (int i = 0; i < cancelButton.length; i++) {
+            final int index = i; // ActionListener 내에서 사용하기 위한 인덱스 변수
+
+            cancelButton[i].addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println("이벤트 발생" + index);
+                    map.clear();
+                }
+            });
+        }
         
         backButton.addActionListener(new ActionListener() {
 			
@@ -136,9 +167,14 @@ public class SelectNumPage extends JDialog {
 				
 			}
 		});
-        pack();
-        
-        
-       
+        pack(); 
     }
+    
+    // 자동 여부
+    public int autoStat() {
+    	if (isAuto == AUTO) return AUTO;
+    	if (isAuto == SEMIAUTO) return SEMIAUTO; 
+    	if (isAuto == MANUAL) return MANUAL;
+    	return -1;
+	}  
 }
