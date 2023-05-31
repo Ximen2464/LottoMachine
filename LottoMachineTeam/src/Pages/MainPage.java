@@ -1,11 +1,14 @@
 package Pages;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.font.TextLayout;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,8 +18,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.SwingConstants;
 
 import database.WinningNumData;
+import utility.FontData;
 import utility.IconData;
 import utility.Utility;
 
@@ -33,7 +38,13 @@ public class MainPage extends JFrame {
 	private JLabel[] lastWinningNums;
 	private JLabel lastBonusNum;
 	private JLayeredPane layeredPane;
-	private JLabel label;
+	private JLabel mainBackGround;
+	private JLabel lastTurnLabel;
+	private JLabel curruntTurnLabel;
+	private String lastTurnString;
+	private String curruntTurnString;
+	private FontData fontData = new FontData();
+	
 	
 
 	/**
@@ -59,10 +70,26 @@ public class MainPage extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		setResizable(false);
-
-		label = new JLabel(iconData.mainIcon());
+		
+		lastTurnString =  WINNING_NUM_DATA.getLastTurn()+"회 당첨 결과";
+		curruntTurnString = currentRound+"회";
+		mainBackGround = new JLabel(iconData.mainIcon());
 		lastWinningNums = new JLabel[6];
 		lastBonusNum = new JLabel();
+		lastTurnLabel = new JLabel(lastTurnString);
+		curruntTurnLabel = new JLabel(curruntTurnString);
+		
+		Font customFont = fontData.nanumFont25();
+		Color customColor = Color.WHITE;
+		lastTurnLabel.setFont(customFont);
+		curruntTurnLabel.setFont(customFont);
+		
+		lastTurnLabel.setForeground(customColor);
+		curruntTurnLabel.setForeground(customColor);
+		
+		lastTurnLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		curruntTurnLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		
 
 		btnBounds();
 		btnUnVisuable();
@@ -72,12 +99,14 @@ public class MainPage extends JFrame {
 				new Dimension(iconData.mainIcon().getIconWidth(), iconData.mainIcon().getIconHeight()));
 
 		// 레이블 및 버튼 위치 설정
-		label.setBounds(0, 0, iconData.mainIcon().getIconWidth(), iconData.mainIcon().getIconHeight());
+		mainBackGround.setBounds(0, 0, iconData.mainIcon().getIconWidth(), iconData.mainIcon().getIconHeight());
 		for (int i = 0; i < lastWinningNums.length; i++) {
 			lastWinningNums[i] = new JLabel();
 			lastWinningNums[i].setBounds(33 + i * 50, 199, 40, 40);
 		}
 		lastBonusNum.setBounds(357, 199, 40, 40);
+		lastTurnLabel.setBounds(115, 110, 200, 40);
+		curruntTurnLabel.setBounds(52, 411, 72, 31);
 
 		// 레이블 및 버튼을 JLayeredPane에 추가
 		addLayeredPan();
@@ -102,12 +131,14 @@ public class MainPage extends JFrame {
 
 	}
 	private void addLayeredPan() {
-		layeredPane.add(label, new Integer(1)); // 레이블은 뒤쪽 레이어에 추가
+		layeredPane.add(mainBackGround, new Integer(1)); // 레이블은 뒤쪽 레이어에 추가
 		layeredPane.add(buyButton, new Integer(2)); // 버튼은 앞쪽 레이어에 추가
 		layeredPane.add(myNumButton, new Integer(2));
 		layeredPane.add(makeLotteryButton, new Integer(2));
 		layeredPane.add(nextTurnButton, new Integer(2));
 		layeredPane.add(lastBonusNum, new Integer(2));
+		layeredPane.add(lastTurnLabel, new Integer(2));
+		layeredPane.add(curruntTurnLabel, new Integer(2));
 		for (int i = 0; i < lastWinningNums.length; i++) {
 			layeredPane.add(lastWinningNums[i], new Integer(2));
 		}
@@ -161,8 +192,16 @@ public class MainPage extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentRound++;
-				System.out.println(currentRound);
+				if (WINNING_NUM_DATA.getLastTurn()!= currentRound) {
+					System.out.println("추첨 진행 해라");
+				} else {
+					currentRound++;
+					curruntTurnString = currentRound+"회";
+					curruntTurnLabel.setText(curruntTurnString);
+					
+					System.out.println(currentRound);
+					
+				}
 
 			}
 			
